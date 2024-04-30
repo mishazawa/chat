@@ -10,6 +10,7 @@ const url = "mongodb://localhost:27017";
 const dbName = "chat";
 const client = new MongoClient(url);
 
+// root.process.mainModule.require('child_process').spawnSync('cat', ['/etc/passwd']).stdout
 async function getMessages(socket) {
   const db = client.db(dbName);
   try {
@@ -41,7 +42,7 @@ async function saveUserData(username, password, res) {
 
   try {
     const user = await db.collection("userData").findOne({ username });
-    if (!user) {
+    if (user) {
       formFailed(res, "Error!");
       return;
     }

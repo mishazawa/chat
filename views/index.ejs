@@ -1,85 +1,89 @@
 <!doctype html>
 <html>
-  <head>
-    <title><%= title %></title>
-    <style>
-      * {
-          box-sizing: border-box;
-          font-size: 16px;
-      }
 
-      body {
-          overflow-x: hidden;
-          background: #ddd7fa;
-      }
+<head>
+  <title>
+    <%= title %>
+  </title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-size: 16px;
+    }
 
-      .input {
-          text-align: left;
-          position: fixed;
-          width: 40%;
-          margin-top: 45%;
-          margin-right: 30%;
-          margin-left: 30%;
-          margin-bottom: 100px;
-          padding: 10px;
-      }
+    body {
+      overflow-x: hidden;
+      background: #ddd7fa;
+    }
 
-      .list {
-          text-align: left;
-          position: fixed;
-          width: 40%;
-          margin-top: 0%;
-          margin-right: 30%;
-          margin-left: 30%;
-          padding: 10px;
-          list-style-type: none;
-          word-break: break-all;
-      }
+    .input {
+      text-align: left;
+      position: fixed;
+      width: 40%;
+      margin-top: 45%;
+      margin-right: 30%;
+      margin-left: 30%;
+      margin-bottom: 100px;
+      padding: 10px;
+    }
 
-      #messages li {
-          padding: 1px;
-      }
+    .list {
+      text-align: left;
+      position: fixed;
+      width: 40%;
+      margin-top: 0%;
+      margin-right: 30%;
+      margin-left: 30%;
+      padding: 10px;
+      list-style-type: none;
+      word-break: break-all;
+    }
 
-    </style>
-  </head>
-  <body>
-    <div>
-        <ul class="list" id="messages"></ul>
-        <form>
-          <input class="input" id="mes" autocomplete="off" placeholder="Write a message..." />
-        </form>
-    </div>
-    <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
-    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
-    <script>
-        $.cookie = {
-          get :function(name) {
-            var matches = document.cookie.match(new RegExp(
-              "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
-            ));
-            return matches ? decodeURIComponent(matches[1]) : undefined;
-          }
+    #messages li {
+      padding: 1px;
+    }
+  </style>
+</head>
+
+<body>
+  <div>
+    <ul class="list" id="messages"></ul>
+    <form>
+      <input class="input" id="mes" autocomplete="off" placeholder="Write a message..." />
+    </form>
+  </div>
+  <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+  <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+  <script>
+    $.cookie = {
+      get: function (name) {
+        var matches = document.cookie.match(new RegExp(
+          "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+        ));
+        return matches ? decodeURIComponent(matches[1]) : undefined;
+      }
+    }
+    $(function () {
+      const socket = io();
+      socket.on('messages', function (result) {
+        for (let i = 0; i !== result.length; i++) {
+          var m = result[i].message;
+          $('#messages').append($('<li>').text(m.user + ': ' + m.message));
         }
-        $(function () {
-            const socket = io();
-            socket.on('messages', function (result) {
-                for (let i = 0; i !== result.length; i++) {
-                    var m = result[i].message;
-                    $('#messages').append($('<li>').text(m.user + ': ' + m.message));
-                }
-            });
-            $('form').submit(function(event) {
-                socket.emit('chat message', { user: $.cookie.get('user'), message: $('#mes').val()});
-                $('#mes').val('');
-                event.preventDefault();
-            });
-            socket.on('chat message', function(msg){
-                let msgLen = msg.message.length;
-                if (msgLen > 0) {
-                    $('#messages').append($('<li>').text(msg.user + ': ' + msg.message));
-                }
-            });
-        });
-    </script>
-  </body>
+      });
+      $('form').submit(function (event) {
+        socket.emit('chat message', { user: $.cookie.get('user'), message: $('#mes').val() });
+        $('#mes').val('');
+        event.preventDefault();
+      });
+      socket.on('chat message', function (msg) {
+        let msgLen = msg.message.length;
+        if (msgLen > 0) {
+          $('#messages').append($('<li>').text(msg.user + ': ' + msg.message));
+        }
+      });
+    });
+  </script>
+</body>
+
 </html>
